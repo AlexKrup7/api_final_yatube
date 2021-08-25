@@ -3,21 +3,17 @@ from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import filters
 from rest_framework import viewsets
 from rest_framework.permissions import (
-    SAFE_METHODS,
     IsAuthenticatedOrReadOnly,
     IsAuthenticated
 )
+
 from posts.models import Post, Group
+from .permissions import IsAuthorOrReadOnly
 from .serializers import (
     CommentSerializer,
     PostSerializer,
     GroupSerializer,
     FollowSerializer)
-
-
-class IsAuthorOrReadOnly(IsAuthenticatedOrReadOnly):
-    def has_object_permission(self, request, view, obj):
-        return request.method in SAFE_METHODS or obj.author == request.user
 
 
 class CommentViewSet(viewsets.ModelViewSet):
@@ -31,7 +27,7 @@ class CommentViewSet(viewsets.ModelViewSet):
 
     def get_queryset(self):
         post = get_object_or_404(Post, pk=self.kwargs.get('post_id'))
-        return post.comments
+        return post.comments.all()
 
 
 class GroupViewSet(viewsets.ReadOnlyModelViewSet):
@@ -55,7 +51,7 @@ class FollowViewSet(viewsets.ModelViewSet):
     search_fields = ('following__username',)
 
     def get_queryset(self):
-        return self.request.user.follower
+        return self.request.user.follower.all()
 
     def perform_create(self, serializer):
         serializer.save(user=self.request.user)
