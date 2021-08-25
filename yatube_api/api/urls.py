@@ -6,7 +6,7 @@ from rest_framework_simplejwt.views import (
     TokenVerifyView
 )
 
-from .views import *
+from .views import GroupViewSet, PostViewSet, FollowViewSet, CommentViewSet
 
 router_ver1 = routers.DefaultRouter()
 router_ver1.register(r'groups', GroupViewSet, basename='groups')
